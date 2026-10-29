@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#101b26">
+  <meta name="description" content="Cidade Sem Fim: entregas, carros, imóveis e roupas em cidades procedurais.">
+  <title>Cidade Sem Fim | Alpha 1.0</title>
+  <link rel="stylesheet" href="styles.css?v=alpha1">
+</head>
+<body>
+  <canvas id="game" aria-label="Mundo 3D da cidade"></canvas>
+  <div id="main-menu" class="main-menu" role="dialog" aria-label="Menu principal da Cidade Sem Fim">
+    <div class="menu-layout">
+      <div class="menu-brand">
+        <div class="menu-eyebrow">MUNDO PROCEDURAL · ALPHA 1.0</div>
+        <div class="menu-icon">▥</div>
+        <h1 id="dev-secret-title" title="Cidade Sem Fim">CIDADE<br><em>SEM FIM</em></h1>
+        <p>Faça entregas, compre carros e propriedades, troque de roupa e descubra novas cidades no mundo da sua seed.</p>
+        <div class="menu-features"><span>🚗 Direção livre</span><span>🚶 Cidade viva</span><span>📦 Entregas sem cronômetro</span></div>
+        <div class="menu-help"><b>COMANDOS</b><p>WASD ou setas: andar e dirigir · M: mapa · Shift: correr · E: interagir · F: entrar ou sair do carro · Espaço: frear · Mouse: câmera · Esc: menu</p><p>No celular, use o joystick e os botões AÇÃO e CARRO para interagir, comprar e dirigir.</p></div>
+      </div>
+      <div class="menu-panel">
+        <form id="seed-form" class="seed-form" autocomplete="off">
+          <label for="seed">SEED DO MUNDO</label>
+          <div class="seed-row">
+            <div class="seed-input-wrap"><span>#</span><input id="seed" name="seed" maxlength="48" spellcheck="false" value="CLT-2026" aria-label="Seed da cidade"></div>
+            <button type="button" id="random" class="icon-button" title="Seed aleatória" aria-label="Gerar seed aleatória">↻</button>
+            <button type="button" id="share" class="icon-button" title="Copiar link da seed" aria-label="Copiar link da seed">↗</button>
+          </div>
+          <small class="seed-hint">A mesma seed recria o mapa e mantém seu progresso separado.<div class="save-preview" id="save-preview">Carregando save...</div></small>
+          <details class="world-settings" id="world-settings" open>
+            <summary>⚙ CONFIGURAÇÕES DO MUNDO <span>⌄</span></summary>
+            <div class="settings-content">
+              <label for="hours">Horário inicial <output id="clock-time">14:00</output></label>
+              <input id="hours" type="range" min="0" max="23.99" step="0.05" value="14">
+              <label class="check-row" for="auto-time"><input type="checkbox" id="auto-time" checked> Ciclo automático de dia e noite</label>
+              <label for="sun-angle">Direção das sombras <output id="sun-value">60°</output></label>
+              <input id="sun-angle" type="range" min="0" max="360" step="5" value="60">
+              <label class="check-row" for="map-rotate"><input type="checkbox" id="map-rotate" checked> Girar minimapa conforme o personagem</label>
+              <div class="settings-section-title">CLIMA E SOM</div>
+              <label for="weather-mode">Condições climáticas</label>
+              <select id="weather-mode" aria-label="Escolher clima"><option value="automatico">Automático</option><option value="ensolarado">Ensolarado</option><option value="nublado">Nublado</option><option value="chuva">Chuva</option><option value="neblina">Neblina</option></select>
+              <small>O clima automático muda ao longo do dia. O som ambiente é configurado no config.js.</small>
+              <div class="settings-section-title">MOVIMENTO DA CIDADE</div>
+              <label for="traffic-density">Densidade de carros <output id="traffic-value">70%</output></label>
+              <input id="traffic-density" type="range" min="0" max="100" step="5" value="70">
+              <label for="ped-density">Densidade de pedestres <output id="ped-value">65%</output></label>
+              <input id="ped-density" type="range" min="0" max="100" step="5" value="65">
+              <small>Valores altos aumentam a população próxima. O celular usa limites menores para preservar o desempenho.</small>
+            </div>
+          </details>
+          <button id="start-world" class="start-button" type="submit">▶ JOGAR</button>
+          <button id="resume-world" class="resume-button" type="button" hidden>↩ CONTINUAR PARTIDA</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <button id="menu-open" type="button" title="Abrir menu principal (Esc)" aria-label="Abrir menu principal" hidden>☰</button>
+  <div id="play-hud" class="play-hud" hidden>
+    <div class="coords" id="coordinates">X 0.0 · Y 0.0 · Z 0.0</div>
+    <div class="map-wrap"><canvas id="minimap" width="180" height="180" aria-label="Abrir mapa ampliado" role="button" tabindex="0" title="Toque ou clique para abrir o mapa"></canvas></div>
+  </div>
+  <div id="map-modal" class="map-modal" hidden role="dialog" aria-modal="true" aria-label="Mapa da cidade">
+    <div class="map-panel">
+      <div class="map-toolbar"><div><strong>🗺 MAPA DO MUNDO</strong><small>Arraste para explorar · Rodinha ou pinça para zoom</small></div><button id="map-close" type="button" aria-label="Fechar mapa">✕</button></div>
+      <canvas id="large-map" width="720" height="720" aria-label="Mapa ampliado navegável"></canvas>
+      <div class="map-controls"><button id="map-zoom-out" type="button" aria-label="Afastar">−</button><span id="map-scale-label">ZOOM 55%</span><button id="map-zoom-in" type="button" aria-label="Aproximar">+</button><button id="map-center" type="button">◎ MINHA POSIÇÃO</button></div>
+      <small class="map-legend">🍕 Restaurantes &nbsp; 🚗 Oficinas &nbsp; 👖 Lojas &nbsp; 🏠 À venda &nbsp; 🏡 Comprados &nbsp; 🟡 Entrega</small>
+    </div>
+  </div>
+  <div class="mission-hud" id="mission-hud" hidden>
+    <span id="mission-title">COLETAR PEDIDO</span>
+    <strong id="mission-detail">Procure um restaurante.</strong>
+    <small id="mission-wallet">R$ 0,00 · 0 entregas</small>
+    <div class="mission-help">🍕 restaurante · 🚗 oficina · 👖 loja · 🏠 à venda · 🏡 sua casa</div>
+  </div>
+  <div class="touch-ui" id="touch-ui" hidden>
+    <div id="joystick" class="joystick" aria-label="Controle de movimento"><div id="joystick-knob" class="joystick-knob"></div></div>
+    <div class="touch-actions"><button id="interact" type="button" aria-label="Interagir, comprar, coletar ou entregar">AÇÃO</button><button id="vehicle-action" type="button" aria-label="Entrar ou sair do carro">CARRO 🚗</button><button id="sprint" type="button" aria-label="Correr ou frear">CORRER <b>»</b></button></div>
+  </div>
+  <div id="activity-modal" class="activity-modal" hidden role="dialog" aria-modal="true" aria-label="Interações do mundo">
+    <div class="activity-panel">
+      <div class="activity-header"><div><h2 id="activity-title">OFICINA</h2><span id="activity-wallet"></span></div><button id="activity-close" type="button" aria-label="Fechar e voltar ao jogo">✕</button></div>
+      <div id="activity-body" class="activity-body"></div>
+      <div class="activity-foot">No celular, toque nas opções. No computador, use o mouse. Esc fecha este painel.</div>
+    </div>
+  </div>
+  <div id="delivery-modal" class="dev-overlay" hidden role="dialog" aria-modal="true" aria-label="Escolher pedido">
+    <div class="dev-panel"><div class="dev-head"><strong>🍕 PEDIDOS DISPONÍVEIS</strong><button id="delivery-cancel" type="button">✕</button></div>
+      <p>Agora você tem reputação para escolher a distância da entrega. Sem cronômetro!</p>
+      <div id="delivery-offers" class="dev-actions"></div>
+    </div>
+  </div>
+  <button id="dev-fab" type="button" class="dev-fab" hidden>DEV</button>
+  <div id="dev-overlay" class="dev-overlay" hidden role="dialog" aria-modal="true" aria-label="Menu de Desenvolvedor">
+    <div class="dev-panel"><div class="dev-head"><strong>🛠 CIDADE SEM FIM · DEV</strong><button type="button" id="dev-close">✕</button></div>
+      <p>Ferramentas de teste. As mudanças de dinheiro e horário podem ser salvas no progresso desta seed.</p>
+      <div class="dev-actions"><button type="button" data-dev="restaurant">🍕 Restaurante mais próximo</button><button type="button" data-dev="workshop">🚗 Oficina mais próxima</button><button type="button" data-dev="house">🏡 Minha propriedade mais próxima</button></div>
+      <div class="dev-row"><label>Veículo<select id="dev-car"><option value="compacto">Compacto</option><option value="seda">Sedã</option><option value="suv">SUV</option><option value="van">Van</option></select></label><button type="button" data-dev="spawn">Spawnar</button></div>
+      <div class="dev-row"><label>Hora<input id="dev-hour" type="number" min="0" max="23" step="1" value="12"></label><button type="button" data-dev="hour">Aplicar</button></div>
+      <div class="dev-row"><label>Clima<select id="dev-weather"><option value="automatico">Automático</option><option value="ensolarado">Ensolarado</option><option value="nublado">Nublado</option><option value="chuva">Chuva</option><option value="neblina">Neblina</option></select></label><button type="button" data-dev="weather">Aplicar</button></div>
+      <div class="dev-row"><label>Adicionar dinheiro (R$)<input id="dev-money" type="number" min="0" max="1000000" step="100" value="1000"></label><button type="button" data-dev="money">Adicionar</button></div>
+      <div class="dev-actions"><button type="button" data-dev="save">💾 Salvar progresso agora</button></div>
+    </div>
+  </div>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <div id="loading"><span class="loading-logo">▥</span><strong>GERANDO CIDADE...</strong><small>Construindo o seu mundo procedural</small></div>
+  <div id="error" hidden><strong>Não foi possível abrir o mundo 3D.</strong><p id="error-message"></p><p>Use Chrome, Edge ou Firefox atualizado e abra pelo GitHub Pages ou por um servidor local.</p></div>
+  <script>window.addEventListener('error',function(e){if(e.target&&e.target.tagName==='SCRIPT'){document.getElementById('loading').classList.add('hidden');const err=document.getElementById('error');document.getElementById('error-message').textContent='Não foi possível carregar o motor 3D. Verifique sua conexão com a internet.';err.hidden=false;}},true);</script>
+  <script type="module" src="main.js?v=alpha1"></script>
+</body>
+</html>
