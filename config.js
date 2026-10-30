@@ -158,7 +158,7 @@ export var suavidadeDaLuzDoPoste = .7;
 
 
 export var distanciaRenderPC = 5;
-export var distanciaRenderMobile = 4;
-export var distanciaVisibilidade = 1000;//Distancia que a camera renderiza. original 480
+export var distanciaRenderMobile = 2;
+export var distanciaVisibilidade = 600;//Distancia que a camera renderiza. original 480
 
 export var escuridaoNoturnaMinima = .50;//original era 0.7, mas fica muito escuro
