@@ -108,6 +108,18 @@
   <div id="loading"><span class="loading-logo">▥</span><strong>GERANDO CIDADE...</strong><small>Construindo o seu mundo procedural</small></div>
   <div id="error" hidden><strong>Não foi possível abrir o mundo 3D.</strong><p id="error-message"></p><p>Use Chrome, Edge ou Firefox atualizado e abra pelo GitHub Pages ou por um servidor local.</p></div>
   <script>window.addEventListener('error',function(e){if(e.target&&e.target.tagName==='SCRIPT'){document.getElementById('loading').classList.add('hidden');const err=document.getElementById('error');document.getElementById('error-message').textContent='Não foi possível carregar o motor 3D. Verifique sua conexão com a internet.';err.hidden=false;}},true);</script>
+  
+  <script type="importmap">
+{
+  "imports": {
+    "three": "./vendor/three/build/three.module.js",
+    "three/addons/": "./vendor/three/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module" src="./main.js"></script>
+  
   <script type="module" src="main.js?v=alpha1"></script>
 </body>
 </html>

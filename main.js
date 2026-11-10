@@ -1,7 +1,7 @@
 /* Cidade Sem Fim Alpha 1.0 — Vida na cidade, clima, entregas e DEV.
    A seed + coordenadas determinam TODOS os elementos do mundo.
    Biblioteca 3D: Three.js, hospedada em CDN com versão fixa. */
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js';
+import * as THREE from 'three';
 import * as CFG from './config.js';
 
 const $ = (id) => document.getElementById(id);
